@@ -1,0 +1,13 @@
+{
+  "name": "webdriver-cucumber",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {},
+  "author": "dwiana",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.24"
+  }
+}
