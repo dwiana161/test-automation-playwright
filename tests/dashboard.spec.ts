@@ -1,7 +1,7 @@
 import {test, expect} from "@playwright/test";
 import { login } from "./helpers/login";
 
-const ADD_USER = [
+const ADD_USER: string[] = [
   'J',
   'Nina12',
   'test123',
@@ -51,32 +51,69 @@ test('Success Add User', async ({ page }) => {
     const fieldName = page.getByRole('textbox', { name: 'Type for hints...' })
     await fieldName.click()
     await fieldName.fill(ADD_USER[0])
-    await expect(page.getByText('Jayshree Gadhave').first()).toBeVisible()
-    await page.getByText('Jayshree Gadhave').first().click()
+    await expect(page.getByText('James Butler').first()).toBeVisible()
+    await page.getByText('James Butler').first().click()
 
     await page.getByRole('textbox').nth(2).fill(ADD_USER[1])
     await page.getByRole('textbox').nth(3).fill(ADD_USER[2])
     await page.getByRole('textbox').nth(4).fill(ADD_USER[3])
 
     await page.getByRole('button', { name: 'Save' }).click()
-    // await expect(page.locator('p')).toContainText('Success')
-    await expect(page.locator('.oxd-loading-spinner')).toBeVisible()
-    await expect(page.getByText('Nina12')).toBeVisible()
+
+    const errorVisible = await page.getByText('Already exists').isVisible()
+
+    if(errorVisible) {
+        let userName = ADD_USER[1]
+        userName = 'Cacha1';
+        await page.getByRole('textbox').nth(2).fill(ADD_USER[1])
+        await page.getByRole('button', { name: 'Save' }).click()
+        await expect(page.locator('.oxd-loading-spinner')).toBeVisible()
+        await expect(page.getByText('Cacha1')).toBeVisible()
+    }else {
+        // await expect(page.locator('p')).toContainText('Success')
+        await expect(page.locator('.oxd-loading-spinner')).toBeVisible()
+        await expect(page.getByText('Nina12')).toBeVisible()
+    }
 })
 
 test('Success Delete User', async ({ page }) => {
     await login(page)
     await page.getByRole('link', { name: 'Admin' }).click()
-    await page.getByRole('textbox').nth(1).fill('Admin')
 
-    // const row = page.locator('tr', { hasText: 'Employee111' });
-    // const button = row.getByRole('button').first();
-    // await button.click();
-
-    await page.getByRole('row').nth(5).getByRole('button').first().click();
-
+    await page.getByRole('row').nth(5).getByRole('button').first().click()
     await expect(page.getByText('Are you Sure?')).toBeVisible()
     await page.getByRole('button', { name: 'Yes, Delete' }).click()
     await expect(page.getByRole('table').locator('div').nth(2)).toBeVisible()
     await expect(page.getByRole('row').nth(5).getByRole('button').first()).toBeHidden()
+})
+
+test('Edit data user', async ({ page }) => {
+    await login(page)
+    await page.getByRole('link', { name: 'Admin' }).click()
+
+    await page.getByRole('row').nth(3).getByRole('button').last().click()
+    await page.getByRole('textbox').nth(2).fill('Yesaya')
+    await page.getByRole('button', { name: 'Save' }).click()
+    // await expect(page.locator('p')).toContainText('Success')
+
+    const errorVisible = await page.getByText('Already exists').isVisible()
+
+    if(errorVisible) {
+        await page.getByRole('textbox').nth(2).fill('Chika12')
+        await page.getByRole('button', { name: 'Save' }).click()
+        await expect(page.locator('.oxd-loading-spinner')).toBeVisible()
+        await expect(page.getByText('Chika12')).toBeVisible()
+    } else {
+        await expect(page.locator('.oxd-loading-spinner')).toBeVisible()
+        await expect(page.getByText('Yesaya')).toBeVisible()
+    }
+})
+
+test('Click menu job', async ({ page }) => {
+    await login(page)
+    await page.getByRole('link', { name: 'Admin' }).click()
+    await page.getByRole('listitem').filter({ hasText: 'Job' }).click()
+    await expect(page.getByRole('menuitem', { name: 'Job Titles' })).toBeVisible()
+    await page.getByRole('listitem').filter({ hasText: /^Job Titles$/ }).click()
+    await expect(page.getByRole('heading', { name: 'Job Titles' })).toBeVisible()
 })
